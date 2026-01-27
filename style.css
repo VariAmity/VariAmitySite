@@ -106,10 +106,26 @@ body {
   text-decoration: none;
   font-weight: 500;
   transition: var(--transition);
+  position: relative;
 }
 
 .nav a:hover {
   color: var(--accent);
+}
+
+.nav a.active {
+  color: var(--accent);
+}
+
+.nav a.active::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--accent);
+  border-radius: 1px;
 }
 
 /* Hero Section */
@@ -170,6 +186,13 @@ body {
   max-width: 800px;
   animation: float 6s ease-in-out infinite;
   filter: drop-shadow(0 0 60px rgba(0, 90, 150, 0.4));
+}
+
+/* Hero scroll animation */
+.hero-content,
+.hero-visual {
+  transition: opacity 0.1s ease-out, transform 0.1s ease-out, filter 0.1s ease-out;
+  will-change: opacity, transform, filter;
 }
 
 @keyframes float {

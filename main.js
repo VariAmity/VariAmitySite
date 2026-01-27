@@ -2,7 +2,18 @@
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
   anchor.addEventListener('click', function (e) {
     e.preventDefault();
-    const target = document.querySelector(this.getAttribute('href'));
+    const href = this.getAttribute('href');
+    
+    // Scroll to top if href is just "#"
+    if (href === '#') {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+      return;
+    }
+    
+    const target = document.querySelector(href);
     if (target) {
       target.scrollIntoView({
         behavior: 'smooth',
@@ -16,6 +27,49 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
 const header = document.querySelector('.header');
 let lastScroll = 0;
 
+// Hero parallax scroll animation
+const heroContent = document.querySelector('.hero-content');
+const heroVisual = document.querySelector('.hero-visual');
+const heroSection = document.querySelector('.hero');
+
+function updateHeroAnimation() {
+  const scrollY = window.scrollY;
+  const heroHeight = heroSection?.offsetHeight || window.innerHeight;
+  
+  // Calculate progress (0 to 1) based on scroll position within hero
+  const progress = Math.min(scrollY / (heroHeight * 0.6), 1);
+  
+  // Eased progress for smoother animation
+  const easedProgress = progress * progress;
+  
+  // Calculate animation values
+  const opacity = 1 - easedProgress;
+  const scale = 1 - (easedProgress * 0.15); // Scale down to 0.85
+  const blur = easedProgress * 8; // Up to 8px blur
+  const translateY = scrollY * 0.3; // Parallax effect - moves slower than scroll
+  
+  // Apply to hero content (text side)
+  if (heroContent) {
+    heroContent.style.opacity = opacity;
+    heroContent.style.transform = `translateY(${translateY}px) scale(${scale})`;
+    heroContent.style.filter = `blur(${blur}px)`;
+  }
+  
+  // Apply to hero visual (logo side) with slightly different timing
+  if (heroVisual) {
+    const visualProgress = Math.min(scrollY / (heroHeight * 0.5), 1);
+    const visualEased = visualProgress * visualProgress;
+    const visualOpacity = 1 - visualEased;
+    const visualScale = 1 - (visualEased * 0.2); // Scale down more
+    const visualBlur = visualEased * 12; // More blur
+    const visualTranslateY = scrollY * 0.15; // Slower parallax
+    
+    heroVisual.style.opacity = visualOpacity;
+    heroVisual.style.transform = `translateY(${visualTranslateY}px) scale(${visualScale})`;
+    heroVisual.style.filter = `blur(${visualBlur}px)`;
+  }
+}
+
 window.addEventListener('scroll', () => {
   const currentScroll = window.scrollY;
   
@@ -25,8 +79,14 @@ window.addEventListener('scroll', () => {
     header.style.background = 'rgba(10, 25, 41, 0.9)';
   }
   
+  // Update hero animation
+  updateHeroAnimation();
+  
   lastScroll = currentScroll;
 });
+
+// Initial call to set correct state on page load
+updateHeroAnimation();
 
 // Show header logo when hero logo starts to scroll out of viewport
 const heroLogo = document.querySelector('.hero-logo');
@@ -70,6 +130,42 @@ document.querySelectorAll('.project-card, .philosophy-card').forEach((card, inde
   card.style.transition = `all 0.6s ease ${index * 0.1}s`;
   observer.observe(card);
 });
+
+// Active navigation highlighting based on scroll position
+const sections = document.querySelectorAll('section[id]');
+const navLinks = document.querySelectorAll('.nav a[href^="#"]');
+
+const sectionObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const sectionId = entry.target.getAttribute('id');
+      
+      // Remove active class from all nav links
+      navLinks.forEach(link => link.classList.remove('active'));
+      
+      // Add active class to matching nav link (if section has an id with matching nav)
+      if (sectionId) {
+        const activeLink = document.querySelector(`.nav a[href="#${sectionId}"]`);
+        if (activeLink) {
+          activeLink.classList.add('active');
+        }
+      }
+    }
+  });
+}, {
+  root: null,
+  rootMargin: '-20% 0px -60% 0px',
+  threshold: 0
+});
+
+sections.forEach(section => {
+  sectionObserver.observe(section);
+});
+
+// Also observe hero section to clear active state when scrolling back to top
+if (heroSection) {
+  sectionObserver.observe(heroSection);
+}
 
 // Console easter egg
 console.log('%c VariAmity ', 'background: #005a96; color: #73fffe; font-size: 24px; font-weight: bold; padding: 10px 20px; border-radius: 8px;');
