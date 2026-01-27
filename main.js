@@ -46,26 +46,24 @@ function updateHeroAnimation() {
   const opacity = 1 - easedProgress;
   const scale = 1 - (easedProgress * 0.15); // Scale down to 0.85
   const blur = easedProgress * 8; // Up to 8px blur
-  const translateY = scrollY * 0.3; // Parallax effect - moves slower than scroll
   
-  // Apply to hero content (text side)
+  // Apply to hero content (text side) - fade and blur only, no movement
   if (heroContent) {
     heroContent.style.opacity = opacity;
-    heroContent.style.transform = `translateY(${translateY}px) scale(${scale})`;
+    heroContent.style.transform = `scale(${scale})`;
     heroContent.style.filter = `blur(${blur}px)`;
   }
   
-  // Apply to hero visual (logo side) with slightly different timing
+  // Apply to hero visual (logo side) with slightly different timing - fade and blur only, no movement
   if (heroVisual) {
     const visualProgress = Math.min(scrollY / (heroHeight * 0.5), 1);
     const visualEased = visualProgress * visualProgress;
     const visualOpacity = 1 - visualEased;
     const visualScale = 1 - (visualEased * 0.2); // Scale down more
     const visualBlur = visualEased * 12; // More blur
-    const visualTranslateY = scrollY * 0.15; // Slower parallax
     
     heroVisual.style.opacity = visualOpacity;
-    heroVisual.style.transform = `translateY(${visualTranslateY}px) scale(${visualScale})`;
+    heroVisual.style.transform = `scale(${visualScale})`;
     heroVisual.style.filter = `blur(${visualBlur}px)`;
   }
 }
@@ -91,21 +89,23 @@ updateHeroAnimation();
 // Show header logo when hero logo starts to scroll out of viewport
 const heroLogo = document.querySelector('.hero-logo');
 
-const heroObserver = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      header.classList.remove('logo-visible');
-    } else {
-      header.classList.add('logo-visible');
-    }
-  });
-}, {
-  root: null,
-  rootMargin: '-80px 0px 0px 0px',
-  threshold: 1
-});
+// Use scroll-based detection for more reliable cross-device behavior
+function updateHeaderLogo() {
+  if (!heroLogo || !header) return;
+  
+  const heroLogoRect = heroLogo.getBoundingClientRect();
+  const headerHeight = header.offsetHeight || 80;
+  
+  // Show header logo when hero logo's bottom edge goes above the header
+  if (heroLogoRect.bottom < headerHeight) {
+    header.classList.add('logo-visible');
+  } else {
+    header.classList.remove('logo-visible');
+  }
+}
 
-heroObserver.observe(heroLogo);
+window.addEventListener('scroll', updateHeaderLogo, { passive: true });
+updateHeaderLogo(); // Initial check
 
 // Intersection Observer for fade-in animations
 const observerOptions = {

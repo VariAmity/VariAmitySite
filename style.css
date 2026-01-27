@@ -109,8 +109,10 @@ body {
   position: relative;
 }
 
-.nav a:hover {
-  color: var(--accent);
+@media (hover: hover) {
+  .nav a:hover {
+    color: var(--accent);
+  }
 }
 
 .nav a.active {
@@ -512,15 +514,23 @@ body {
     gap: 1rem;
   }
 
+  .hero {
+    min-height: 100vh;
+    height: 100vh;
+    max-height: 100vh;
+    padding-bottom: 4rem;
+  }
+
   .hero .container {
     grid-template-columns: 1fr;
     text-align: center;
-    padding-top: 4rem;
+    padding-top: 2rem;
   }
 
   .hero-subtitle {
     margin-left: auto;
     margin-right: auto;
+    margin-bottom: 1rem;
   }
 
   .hero-visual {
@@ -528,7 +538,7 @@ body {
   }
 
   .hero-logo {
-    max-width: 250px;
+    max-width: 320px;
   }
 
   .projects-grid {
