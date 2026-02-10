@@ -135,37 +135,30 @@ document.querySelectorAll('.project-card, .philosophy-card').forEach((card, inde
 const sections = document.querySelectorAll('section[id]');
 const navLinks = document.querySelectorAll('.nav a[href^="#"]');
 
-const sectionObserver = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      const sectionId = entry.target.getAttribute('id');
-      
-      // Remove active class from all nav links
-      navLinks.forEach(link => link.classList.remove('active'));
-      
-      // Add active class to matching nav link (if section has an id with matching nav)
-      if (sectionId) {
-        const activeLink = document.querySelector(`.nav a[href="#${sectionId}"]`);
-        if (activeLink) {
-          activeLink.classList.add('active');
-        }
-      }
+function updateActiveNav() {
+  const viewportHeight = window.innerHeight;
+  let currentSection = null;
+
+  // Highlight the section whose top enters the bottom 40% of the viewport
+  sections.forEach(section => {
+    const rect = section.getBoundingClientRect();
+    if (rect.top <= viewportHeight * 0.6) {
+      currentSection = section.getAttribute('id');
     }
   });
-}, {
-  root: null,
-  rootMargin: '-20% 0px -60% 0px',
-  threshold: 0
-});
 
-sections.forEach(section => {
-  sectionObserver.observe(section);
-});
+  navLinks.forEach(link => link.classList.remove('active'));
 
-// Also observe hero section to clear active state when scrolling back to top
-if (heroSection) {
-  sectionObserver.observe(heroSection);
+  if (currentSection) {
+    const activeLink = document.querySelector(`.nav a[href="#${currentSection}"]`);
+    if (activeLink) {
+      activeLink.classList.add('active');
+    }
+  }
 }
+
+window.addEventListener('scroll', updateActiveNav, { passive: true });
+updateActiveNav();
 
 // Console easter egg
 console.log('%c VariAmity ', 'background: #005a96; color: #73fffe; font-size: 24px; font-weight: bold; padding: 10px 20px; border-radius: 8px;');
