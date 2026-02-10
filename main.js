@@ -2,6 +2,8 @@
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
   anchor.addEventListener('click', function (e) {
     e.preventDefault();
+    // Remove focus to prevent stuck highlight on mobile
+    this.blur();
     const href = this.getAttribute('href');
     
     // Scroll to top if href is just "#"
